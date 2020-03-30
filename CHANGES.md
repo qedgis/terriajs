@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+### v7.11.3
+
+* Added babel dynamic import plugin for webpack builds.
+* `ignoreUnknownTileErrors` will now also ignore HTTP 200 responses that are not proper images.
+
 ### v7.11.2
 
 * Pass minimumLevel, in Cesium, to minNativeZoom, in Leaflet.
