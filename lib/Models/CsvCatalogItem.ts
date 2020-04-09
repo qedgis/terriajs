@@ -17,6 +17,7 @@ import AutoRefreshingMixin from "../ModelMixins/AutoRefreshingMixin";
 import isDefined from "../Core/isDefined";
 import { DimensionOption } from "../Models/SelectableDimensions";
 import filterOutUndefined from "../Core/filterOutUndefined";
+import { BaseModel } from "./Model";
 
 // Types of CSVs:
 // - Points - Latitude and longitude columns or address
@@ -46,8 +47,8 @@ export default class CsvCatalogItem extends TableMixin(
 
   private _csvFile?: File;
 
-  constructor(id: string | undefined, terria: Terria) {
-    super(id, terria);
+  constructor(id: string | undefined, terria: Terria, sourceReference?: BaseModel) {
+    super(id, terria, sourceReference);
     this.strata.set(
       automaticTableStylesStratumName,
       new TableAutomaticStylesStratum(this)
@@ -128,11 +129,11 @@ export default class CsvCatalogItem extends TableMixin(
   protected forceLoadTableData(): Promise<string[][]> {
     if (this.csvString !== undefined) {
       return Csv.parseString(this.csvString, true);
-    } else if (this.url !== undefined) {
-      return Csv.parseUrl(proxyCatalogItemUrl(this, this.url, "1d"), true);
     } else if (this._csvFile !== undefined) {
       return Csv.parseFile(this._csvFile, true);
-    } else {
+    } else if (this.url !== undefined) {
+      return Csv.parseUrl(proxyCatalogItemUrl(this, this.url, "1d"), true);
+    }  else {
       return Promise.reject(
         new TerriaError({
           sender: this,
