@@ -43,10 +43,13 @@ import SelectableDimensions, {
 // This is a dodgy workaround.
 class RegionProviderList extends JSRegionProviderList {}
 
-export default function TableMixin<T extends Constructor<Model<TableTraits>>>(
+function TableMixin<T extends Constructor<Model<TableTraits>>>(
   Base: T
 ) {
   abstract class TableMixin extends Base implements SelectableDimensions {
+    get hasTableMixin() {
+      return true;
+    }
     /**
      * The raw data table in column-major format, i.e. the outer array is an
      * array of columns.
@@ -557,3 +560,14 @@ export default function TableMixin<T extends Constructor<Model<TableTraits>>>(
 
   return TableMixin;
 }
+
+namespace TableMixin {
+  export interface TableMixin
+    extends InstanceType<ReturnType<typeof TableMixin>> {}
+
+  export function isMixedInto(model: any): model is TableMixin {
+    return model && model.hasTableMixin;
+  }
+}
+
+export default TableMixin;
