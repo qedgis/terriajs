@@ -42,7 +42,6 @@ import SelectableDimensions, {
 //   Cannot use namespace 'JSRegionProviderList' as a type.ts(2709)
 // This is a dodgy workaround.
 class RegionProviderList extends JSRegionProviderList {}
-
 function TableMixin<T extends Constructor<Model<TableTraits>>>(Base: T) {
   abstract class TableMixin extends Base implements SelectableDimensions {
     get hasTableMixin() {
@@ -247,10 +246,6 @@ function TableMixin<T extends Constructor<Model<TableTraits>>>(Base: T) {
 
     @computed
     get selectableDimensions(): SelectableDimension[] {
-      if (this.mapItems.length === 0) {
-        return [];
-      }
-
       return filterOutUndefined([
         this.styleDimensions,
         this.regionColumnDimensions,
@@ -258,8 +253,14 @@ function TableMixin<T extends Constructor<Model<TableTraits>>>(Base: T) {
       ]);
     }
 
+    /**
+     * Takes {@link TableStyle}s and returns a SelectableDimension which can be rendered in a Select dropdown
+     */
     @computed
-    get styleDimensions(): SelectableDimension {
+    get styleDimensions(): SelectableDimension | undefined {
+      if (this.mapItems.length === 0 && !this.enableManualRegionMapping) {
+        return;
+      }
       const tableModel = this;
       return {
         get id(): string {
@@ -285,6 +286,10 @@ function TableMixin<T extends Constructor<Model<TableTraits>>>(Base: T) {
       };
     }
 
+    /**
+     * Creates SelectableDimension for regionProviderList - the list of all available region providers.
+     * {@link TableTraits#enableManualRegionMapping} must be enabled.
+     */
     @computed
     get regionProviderDimensions(): SelectableDimension | undefined {
       if (
@@ -334,6 +339,10 @@ function TableMixin<T extends Constructor<Model<TableTraits>>>(Base: T) {
       };
     }
 
+    /**
+     * Creates SelectableDimension for region column - the options contains a list of all columns.
+     * {@link TableTraits#enableManualRegionMapping} must be enabled.
+     */
     @computed
     get regionColumnDimensions(): SelectableDimension | undefined {
       if (
