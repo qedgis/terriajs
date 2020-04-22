@@ -70,5 +70,5 @@ export default class TableTraits extends mixTraits(
       "If enabled, there will be controls to set region column and region type.",
     type: "boolean"
   })
-  enableManualRegionMapping?: boolean;
+  enableManualRegionMapping: boolean = true;
 }
