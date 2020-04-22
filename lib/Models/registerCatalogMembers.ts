@@ -76,10 +76,7 @@ export default function registerCatalogMembers() {
   CatalogMemberFactory.register(CartoMapCatalogItem.type, CartoMapCatalogItem);
   CatalogMemberFactory.register(UrlReference.type, UrlReference);
   CatalogMemberFactory.register(SplitItemReference.type, SplitItemReference);
-  CatalogMemberFactory.register(
-    YDYRCatalogFunction.type,
-    YDYRCatalogFunction
-  );
+  CatalogMemberFactory.register(YDYRCatalogFunction.type, YDYRCatalogFunction);
   CatalogMemberFactory.register(
     WebProcessingServiceCatalogFunction.type,
     WebProcessingServiceCatalogFunction
