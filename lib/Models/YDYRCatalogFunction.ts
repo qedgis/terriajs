@@ -20,6 +20,7 @@ import CsvCatalogItemTraits from "../Traits/CsvCatalogItemTraits";
 import CsvCatalogItem from "./CsvCatalogItem";
 import CommonStrata from "./CommonStrata";
 import StringParameter from "./StringParameter";
+import ResultPendingCatalogItem from "./ResultPendingCatalogItem";
 
 export const DATASETS = [
   {
@@ -438,14 +439,15 @@ export default class YDYRCatalogFunction extends CatalogFunctionMixin(
     //       }));
     // }
 
-    this.terria.workbench.add(this.createPendingCatalogItem());
+    const resultPendingCatalogItem = this.createPendingCatalogItem()
+    this.terria.workbench.add(resultPendingCatalogItem);
 
-    this.pollForResults(jobId);
+    this.pollForResults(jobId, resultPendingCatalogItem);
 
     console.log(params);
   }
 
-  async pollForResults(jobId: string, attempt = 0) {
+  async pollForResults(jobId: string, resultPendingCatalogItem: ResultPendingCatalogItem, attempt = 0) {
     const status = await loadJson(
       proxyCatalogItemUrl(
         this,
@@ -457,10 +459,10 @@ export default class YDYRCatalogFunction extends CatalogFunctionMixin(
     if (typeof status !== "string") {
       console.log("COMPLETED");
       console.log(status);
-      this.downloadResults(status.key);
+      this.downloadResults(status.key, resultPendingCatalogItem);
       return;
     } else {
-      this.resultPendingCatalogItem?.setTrait(
+      resultPendingCatalogItem?.setTrait(
         CommonStrata.user,
         "description",
         status
@@ -468,11 +470,11 @@ export default class YDYRCatalogFunction extends CatalogFunctionMixin(
       console.log(status);
     }
 
-    setTimeout(this.pollForResults.bind(this, jobId, attempt + 1), 1000);
+    setTimeout(this.pollForResults.bind(this, jobId, resultPendingCatalogItem, attempt + 1), 1000);
   }
 
-  async downloadResults(key: string) {
-    this.resultPendingCatalogItem?.setTrait(
+  async downloadResults(key: string, resultPendingCatalogItem: ResultPendingCatalogItem) {
+    resultPendingCatalogItem.setTrait(
       CommonStrata.user,
       "description",
       "Job has finished, downloading CSV data"
@@ -489,9 +491,8 @@ export default class YDYRCatalogFunction extends CatalogFunctionMixin(
       item.setTrait(CommonStrata.user, "csvString", csv);
     });
     await item.loadMapItems();
-    if (isDefined(this.resultPendingCatalogItem)) {
-      this.terria.workbench.remove(this.resultPendingCatalogItem);
-    }
+      this.terria.workbench.remove(resultPendingCatalogItem);
+    
 
     this.terria.workbench.add(item);
   }
